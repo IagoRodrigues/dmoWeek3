@@ -1,6 +1,8 @@
 package br.edu.dmos5.meupocket.view;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,7 +15,8 @@ import br.edu.dmos5.meupocket.R;
 import br.edu.dmos5.meupocket.dao.SiteDao;
 import br.edu.dmos5.meupocket.model.Site;
 
-public class SitesActivity extends AppCompatActivity {
+public class SitesActivity extends AppCompatActivity implements ListView.OnItemClickListener {
+
     //Referência para o elemento de layout.
     private ListView sitesListView;
 
@@ -38,23 +41,28 @@ public class SitesActivity extends AppCompatActivity {
         siteList = SiteDao.recuperateAll();
 
         //Instancia do adapter, aqui configura-se como os dados serão apresentados e também
-        //qual a fonte de dados será utilizada, agora com NOSSO adapter.
-        //siteArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, siteList);
+        //qual a fonte de dados será utilizada.
         siteArrayAdapter = new ItemSiteAdapter(this, siteList);
 
         //Com o adapter pronto, vinculamos ele ao nosso ListView. Após esse comando o
         //ListView já consegue apresentar os dados na tela.
         sitesListView.setAdapter(siteArrayAdapter);
+        sitesListView.setOnItemClickListener(this);
+    }
 
-        //Insere-se um listener para os itens da ListView. O método onItemClick() possui um
-        //argumento que indica qual o elemento (posição) foi clicado, assim, basta recuperar esse
-        //elemento de nossa lista e temos o objeto.
-        sitesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getApplicationContext(), siteList.get(i).getTitulo() + "\n" +
-                        siteList.get(i).getEndereco(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        String url = corrigeEndereco(siteList.get(i).getEndereco());
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
+    }
+
+    private String corrigeEndereco(String endereco) {
+        String url = endereco.trim().replace(" ","");
+        if (!url.startsWith("http://")) {
+            return "http://" + url;
+        }
+        return url;
     }
 }

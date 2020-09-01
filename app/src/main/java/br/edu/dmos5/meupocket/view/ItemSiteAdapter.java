@@ -83,6 +83,20 @@ public class ItemSiteAdapter extends ArrayAdapter {
         }
 
         /*
+            Nossa figura de favorito deve ser clicável, por isso, iremos definir que existe um
+            listener para esse objeto. Aqui vamos implementar um onClick() que executa a troca
+            da imagem do favorito.
+        */
+        holder.favoritoImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view == holder.favoritoImageView) {
+                    onEstrelaClique(position);
+                }
+            }
+        });
+
+        /*
             É importante lembrar que estamos implementando uma classe que estende um ArrayAdapter,
             ou seja, possui todas as características da classe pai.
             O método getView() recebe como argumento a posição do elemento da fonte de dados que
@@ -106,6 +120,29 @@ public class ItemSiteAdapter extends ArrayAdapter {
             ListView
         */
         return convertView;
+    }
+
+    /**
+     * O método onEstrelaClique() é chamado quando um ImageView é clicado, assim, recuperamos
+     * o objeto da fonte de dados e atualizamos a preferência do usuário no objeto.
+     * @param position
+     */
+    private void onEstrelaClique(int position) {
+        Site site = (Site) getItem(position);
+        if (site.isFavorito())
+            site.undoFavorite();
+        else
+            site.doFavotite();
+
+        /*
+            Aqui uma chamada muito importante e muito bacana, ao atualizar uma propriedade de nosso
+            objeto
+            Site, alteramos a fonte de dados, um atributo que seja, contudo o ListView não sabe disso.
+            Precisamos notificar que houve uma atualização nos dados a partir no método
+            notifyDataSetChanged()
+            que o Adapter se encarregará de atualizar a lista com os novos dadas.
+        */
+        notifyDataSetChanged();
     }
 
     /*
